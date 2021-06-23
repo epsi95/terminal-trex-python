@@ -2,15 +2,17 @@ from blessings import Terminal
 import time
 import threading
 import keyboard
+import random
 
 t = Terminal()
 
 last_obstacle_position = 0
 last_ball_position = 0
 score = 0
+tree = "🌳"
 
 def serve_obstracles():
-    global last_obstacle_position, last_ball_position, score
+    global last_obstacle_position, last_ball_position, score, tree
     if(score == -1):
         return
     # checking for colision
@@ -21,10 +23,12 @@ def serve_obstracles():
             score = -1
     if not last_obstacle_position:
         last_obstacle_position = 20
+        tree = random.choice(['🌳', '🦌', '🎄', '🌴', '🌲', '🐜', '🕷️'])
+        
     with t.location(0,t.height):
         print(
             "_"*(last_obstacle_position-1) + 
-            t.red("|") + 
+            tree + 
             "_"*(20-last_obstacle_position), end="", flush=True)
     last_obstacle_position -= 1
 
@@ -34,7 +38,7 @@ def bounce(level = 0):
     if(score == -1):
             return
     with t.location(4,t.height-level):
-        print(t.green("0"), end="", flush=True)
+        print("🕺", end="", flush=True)
 
 def print_score():
     if(score == -1):
@@ -50,12 +54,14 @@ def clear_screen():
 
 
 def periodic_obstacle_server():
+    sleep_time = 0.3
     while(1):
         serve_obstracles()
         bounce(last_ball_position)
         print_score()
-        time.sleep(0.3)
+        time.sleep(sleep_time)
         clear_screen()
+        sleep_time = max(0.1, sleep_time-0.005)
 
 def handle_bounce():
     global last_ball_position
